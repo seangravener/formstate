@@ -18,6 +18,8 @@
       // selects all the <form> tags on the page
       // and runs them through the plugin
       $('form').formState({
+
+        confirmDeleteText: 'Are you sure you want to permanently delete this form?',
         
         initComplete: function( data ) {
           updateMessage('There appears to be data stored for this form... it\'s been loaded.', this, data );
@@ -28,7 +30,7 @@
         },
 
         clearComplete: function( data ) {
-          this[0].reset();
+          // this[0].reset();
           updateMessage ('The saved data for this form has been deleted!', this, true )
         }
 

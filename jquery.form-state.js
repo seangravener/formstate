@@ -27,7 +27,8 @@
         saveComplete      : null,
         skipComplete      : null,
         clearComplete     : null,
-        clearOnExit       : false,  
+        clearOnExit       : false,
+        confirmDeleteText : '',
         key_prefix        : 'key_',
         triggers: {
           save            : '.fs-trigger--save',
@@ -40,8 +41,10 @@
 
     var init = {
 
+      // init function used to populate a form with stored data
       populateForm: function( $form, storedFields ) {
       
+        // itirate over each stored value
         for ( var i=0; i < storedFields.length; i++ ) {
 
           var storedFieldName   = storedFields[i].name,
@@ -62,7 +65,7 @@
               // here, we cache it as a jquery object
               $this = $(this);
               
-              // set the stored value as the active element
+              // set the stored value as checked
               if ( $this.val() == storedFieldValue ) $this.attr('checked', true);
 
             });
@@ -81,12 +84,20 @@
       }
     };
 
+    // helper function for callbacks
     var callback = function ( func, object, data ) {
+      
       if ( $.isFunction( settings[ func ] ) ) {
+        
+        // make the callback, pass the object and data
         settings[ func ].call( object, data );
+
       }
+
     };
 
+    // functions that deal with attaching and hanlding click events
+    // based on the defined triggers
     var triggers = {
       
       init: function ( $object ) {
@@ -99,16 +110,16 @@
           // the current trigger
           key = keys[ i ];
 
-          // attach the click handler for the current key in the triggers obj
+          // attach the click handler to the DOM element
           triggers.attach( settings.triggers[ key ], triggers[ key ], $object );
 
         }
 
       },
 
-      attach: function (selector, func, $object) {
+      attach: function ( selector, func, $object ) {
 
-        $object.find( selector ).on('click', function(e) {
+        $object.find( selector ).on('click', function( e ) {
           e.preventDefault();           
           return func( $object );
         });
@@ -126,27 +137,50 @@
       },
 
       skip: function ( $object ) {
+        
         callback ( 'skipComplete', $object, null );
+        
       },
 
       clear: function ( $object ) {
 
-        var key     = settings.key_prefix + $object.attr('name'),
-            success = $.totalStorage.deleteItem(key);
+        // delete stored data by default
+        var deleteData = true;
 
-        callback ( 'clearComplete', $object, null );
+        // if text is set, prompt the user
+        if ( settings.confirmDeleteText ) deleteData = confirm( settings.confirmDeleteText );
+        
+        if ( deleteData ) {
+          
+          // delete the stored data
+          var key     = settings.key_prefix + $object.attr( 'name' ),
+              success = $.totalStorage.deleteItem( key );
+
+          // clear the form fields
+          $object[0].reset();
+
+          callback ( 'clearComplete', $object, null );
+
+        }
+
       }
 
     };
 
+    // 'this' is the jQuery object(s) returned to the plugin;
+    // we use .each() in case multiple objects are returned;
+    // we 'return' so the method is chainable
     return this.each ( function () {
       
-      var $this = $(this),
-          key = settings.key_prefix + $this.attr( 'name' ),
-          data = $.totalStorage( key ),
+      // cache the current object and attempt 
+      // to retrieve any stored data
+      var $this     = $(this),
+          key       = settings.key_prefix + $this.attr( 'name' ),
+          data      = $.totalStorage( key ),
           $data;
 
-      // attach click handlers within $this context
+      // attach click handlers within '$this' context 
+      // using the triggers in the settings
       triggers.init( $this );
 
       if ( data ) {
@@ -157,7 +191,6 @@
 
       }
 
-      // fire callback
       callback ( 'initComplete', $this, $data );
 
     });
