@@ -23,11 +23,11 @@
       
       // set defaults
       settings = {
-        initComplete      : null,
+        initComplete      : function() {},
+        saveComplete      : function() {},
+        skipComplete      : function() {},
+        clearComplete     : function() {},
         hasFormData       : null,
-        saveComplete      : null,
-        skipComplete      : null,
-        clearComplete     : null,
         clearOnExit       : false,
         confirmDeleteText : '',
         key_prefix        : 'key_',
@@ -88,13 +88,9 @@
 
     // helper function for callbacks
     var callback = function ( func, object, data ) {
-      
-      if ( $.isFunction( settings[ func ] ) ) {
         
-        // make the callback, pass the object and data
-        settings[ func ].call( object, data );
-
-      }
+      // make the callback, pass the object and data
+      settings[ func ].call( object, data );
 
     };
 
@@ -125,7 +121,7 @@
           
           e.preventDefault();           
           return func( $object );
-          
+
         });
         
       },
