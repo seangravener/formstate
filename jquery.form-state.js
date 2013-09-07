@@ -27,8 +27,8 @@
         saveComplete      : function() {},
         skipComplete      : function() {},
         clearComplete     : function() {},
-        hasFormData       : null,
-        clearOnExit       : false,
+        hasFormData       : function() {},  // future feature
+        clearOnExit       : false,          // future feature
         confirmDeleteText : '',
         key_prefix        : 'key_',
         triggers: {
