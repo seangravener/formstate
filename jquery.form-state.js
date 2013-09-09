@@ -1,4 +1,4 @@
-/**!
+/*!
  * form state - save the state of a form using localstorage
  * Copyright (c) 2013 Sean Gravener
  * https://github.com/seangravener
@@ -14,6 +14,7 @@
  
  */
 
+// create closure
 ;(function($, undefined){
 
   $.fn.formState = function( options ) {
@@ -22,12 +23,12 @@
       
       // set defaults
       settings = {
-        initComplete      : null,
-        hasFormData       : null,
-        saveComplete      : null,
-        skipComplete      : null,
-        clearComplete     : null,
-        clearOnExit       : false,
+        initComplete      : function() {},
+        saveComplete      : function() {},
+        skipComplete      : function() {},
+        clearComplete     : function() {},
+        hasFormData       : function() {},  // future feature
+        clearOnExit       : false,          // future feature
         confirmDeleteText : '',
         key_prefix        : 'key_',
         triggers: {
@@ -37,6 +38,7 @@
         }
       },
       
+      // merge custom options/settings with defaults
       settings = $.extend( settings, options );
 
     var init = {
@@ -86,13 +88,9 @@
 
     // helper function for callbacks
     var callback = function ( func, object, data ) {
-      
-      if ( $.isFunction( settings[ func ] ) ) {
         
-        // make the callback, pass the object and data
-        settings[ func ].call( object, data );
-
-      }
+      // make the callback, pass the object and data
+      settings[ func ].call( object, data );
 
     };
 
@@ -119,9 +117,11 @@
 
       attach: function ( selector, func, $object ) {
 
-        $object.find( selector ).on('click', function( e ) {
+        $object.find( selector ).on( 'click', function( e ) {
+          
           e.preventDefault();           
           return func( $object );
+
         });
         
       },
