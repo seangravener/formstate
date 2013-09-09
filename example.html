@@ -6,13 +6,14 @@
 <!--[if (gt IE 9)|!(IE)]><!--><html dir="ltr" lang="en-US" class="no-js"><!--<![endif]-->
 <head> 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <!-- <script type="text/javascript" src="jquery.cookie.js"></script> -->
   <script type="text/javascript" src="jquery.total-storage.js"></script>
   <script type="text/javascript" src="jquery.form-state.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
 
-      var updateMessage = function ( html, $object, data ) {
-        if ( data ) $object.find('.messages').html(html).show();
+      var updateMessage = function ( html, $object, $data ) {
+        if ( $data.length ) $object.find('.messages').html(html).show();
       }
 
       // selects all the <form> tags on the page
@@ -21,17 +22,16 @@
 
         confirmDeleteText: 'Are you sure you want to permanently delete this form?',
         
-        initComplete: function( data ) {
-          updateMessage('There appears to be data stored for this form... it\'s been loaded.', this, data );
+        initComplete: function( $data ) {
+          updateMessage('There appears to be data stored for this form... it\'s been loaded.', this, $data );
         },
 
-        saveComplete: function( data ) {
-          updateMessage ('This form has been saved! You can navigate away from this page, close the browser, or come back in a year... the data will still be here.', this, data )
+        saveComplete: function( $data ) {
+          updateMessage ('This form has been saved! You can navigate away from this page, close the browser, or come back in a year... the data will still be here.', this, $data )
         },
 
-        clearComplete: function( data ) {
-          // this[0].reset();
-          updateMessage ('The saved data for this form has been deleted!', this, true )
+        clearComplete: function( $data ) {
+          updateMessage ('The saved data for this form has been deleted!', this, [0] )
         }
 
       });
@@ -49,7 +49,11 @@
 
     html {
       font-size: 16px;
-      /*line-height: 22px;*/
+      line-height: 1.5em;
+    }
+
+    h1, h2 {
+      line-height: 1.2em;
     }
 
     input {

@@ -87,10 +87,10 @@
     };
 
     // helper function for callbacks
-    var callback = function ( func, object, data ) {
+    var callback = function ( func, $object, $data ) {
         
       // make the callback, pass the object and data
-      settings[ func ].call( object, data );
+      settings[ func ].call( $object, $data );
 
     };
 
@@ -128,11 +128,14 @@
 
       save: function ( $object ) {
 
-        var key     = settings.key_prefix + $object.attr('name'),
-            val     = JSON.stringify( $object.serializeArray() ),
-            success = $.totalStorage(key, val);
+        // @TODO - remove empty key/value pairs from stored JSON object
 
-        callback ( 'saveComplete', $object, val );
+        var key     = settings.key_prefix + $object.attr( 'name' ),
+            val     = JSON.stringify( $object.serializeArray() ),
+            success = $.totalStorage( key, val ),
+            data    = JSON.parse( val );
+
+        callback ( 'saveComplete', $object, $(data) );
 
       },
 
@@ -186,12 +189,11 @@
       if ( data ) {
 
         var data    = JSON.parse( data ),
-            $data   = $(data),
             success = init.populateForm( $this, data );
 
       }
 
-      callback ( 'initComplete', $this, $data );
+      callback ( 'initComplete', $this, $(data) );
 
     });
 
