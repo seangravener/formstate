@@ -66,13 +66,39 @@
     }
 
     .container {
-      max-width: 600px;
-      margin: auto;
+      margin-left: auto;
+      margin-right: auto;
+      width: 960px;
     }
       .container--bordered {
         padding: 20px; margin: 20px auto;
         border: 1px solid #ccc;
       }
+
+    .grid_1,
+    .grid_2 {
+      display:inline;
+      float: left;
+      position: relative;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    .container .grid_1 {
+      width:460px;
+    }
+
+    .container .grid_2 {
+      width:940px;
+    }
+
+    .alpha {
+      margin-left: 0;
+    }
+
+    .omega {
+      margin-right: 0;
+    }
 
     h1, h2 {
       border-bottom: 1px solid #ccc;
@@ -89,88 +115,99 @@
       background: #f5f5f5;
     }
 
+    .clearfix:before,.clearfix:after{content:'\0020';display:block;overflow:hidden;visibility:hidden;width:0;height:0}.clearfix:after{clear:both}.clearfix{zoom:1}
+
   </style>
   
 </head>
 <body>
-  
-  <div class="container">
-    <h1>Form State</h1>
-    <ul>
-      <li>The form data is saved using localStorage</li>
-      <li>If stored data exists on pageload, the stored fields are populated</li>
-      <li>Stored data does not expire. It is kept until it is deleted by the user, or by the app.</li>
-      <li>If localStorage isn't supported, cookies are used as a fallback</li>
-      <li>Multiple &lt;form&gt; tags on the same page are supported</li>
-    </ul>
-    <p>Fill out the fields below and click save. Then close the tab or reload this page to see the stored data.</p>
-  </div>
 
-  <div class="container  container--bordered">
-
-    <form name="form__alpha" action="">
-
-      <h2>About You (form 1)</h2>
-
-      <div class="messages hide">
-        <!-- context messages inserted here -->
+  <div class="container  clearfix">
+    
+    <div class="grid_2">
+      <div class="container--bordered">
+        <h1>Form State</h1>
+        <ul>
+          <li>The form data is saved using localStorage</li>
+          <li>If stored data exists on pageload, the stored fields are populated</li>
+          <li>Stored data does not expire. It is kept until it is deleted by the user, or by the app.</li>
+          <li>If localStorage isn't supported, cookies are used as a fallback</li>
+          <li>Multiple &lt;form&gt; tags on the same page are supported</li>
+        </ul>
+        <p>Fill out the fields below and click save. Then close the tab or reload this page to see the stored data.</p>
       </div>
-      
-      <div class="row">
-        <span class="label">First Name:</span>
-        <input type="text" name="name[first]">
+    </div>
+
+    <div class="grid_1">  
+      <div class="container--1bordered">
+        <form name="form__alpha" action="">
+
+          <h2>About You (form 1)</h2>
+
+          <div class="messages hide">
+            <!-- context messages inserted here -->
+          </div>
+          
+          <div class="row">
+            <span class="label">First Name:</span>
+            <input type="text" name="name[first]">
+          </div>
+          <div class="row">
+            <span class="label">Last Name:</span>
+            <input type="text" name="name[last]">
+          </div>
+          <div class="row">
+            <span class="label">Twitter Handle:</span>
+            <input type="text" name="social[twitter]">
+          </div>
+
+          <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
+          <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
+
+        </form>
       </div>
-      <div class="row">
-        <span class="label">Last Name:</span>
-        <input type="text" name="name[last]">
-      </div>
-      <div class="row">
-        <span class="label">Twitter Handle:</span>
-        <input type="text" name="social[twitter]">
-      </div>
+    </div>
 
-      <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
-      <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
+    <div class="grid_1">
+      <div class="container--1bordered">
+        <form name="form__beta" action="">
+          
+          <h2>Favorites (form 2)</h2>
 
-    </form>
-</div>
-<div class="container  container--bordered">
-    <form name="form__beta" action="">
-      
-      <h2>Favorites (form 2)</h2>
+          <div class="messages hide">
+            <!-- context messages inserted here -->
+          </div>
 
-      <div class="messages hide">
-        <!-- context messages inserted here -->
-      </div>
+          <div class="row">
+            <span class="label">Favorite Color:</span>
+            <label><input type="radio" name="favColor" value="red"> Red</label>
+            <label><input type="radio" name="favColor" value="green"> Green</label>
+            <label><input type="radio" name="favColor" value="blue"> Blue</label>
+          </div>
 
-      <div class="row">
-        <span class="label">Favorite Color:</span>
-        <label><input type="radio" name="favColor" value="red"> Red</label>
-        <label><input type="radio" name="favColor" value="green"> Green</label>
-        <label><input type="radio" name="favColor" value="blue"> Blue</label>
-      </div>
+          <div class="row">
+            <span class="label">Favorite Bears:</span>
+            <label><input type="checkbox" name="favAnimal[]" value="panda"> Panda</label>
+            <label><input type="checkbox" name="favAnimal[]" value="grizzly"> Grizzly</label>
+            <label><input type="checkbox" name="favAnimal[]" value="koala"> Koala</label>
+          </div>
+          
+          <div class="row">
+            <span class="label">Favorite Car:</span>
+            <select name="favCar">
+              <option value="ford">Ford</option>
+              <option value="chevy">Chevy</option>
+              <option value="horse">Horse and Buggy</option>
+            </select>
+          </div>
 
-      <div class="row">
-        <span class="label">Favorite Bears:</span>
-        <label><input type="checkbox" name="favAnimal[]" value="panda"> Panda</label>
-        <label><input type="checkbox" name="favAnimal[]" value="grizzly"> Grizzly</label>
-        <label><input type="checkbox" name="favAnimal[]" value="koala"> Koala</label>
-      </div>
-      
-      <div class="row">
-        <span class="label">Favorite Car:</span>
-        <select name="favCar">
-          <option value="ford">Ford</option>
-          <option value="chevy">Chevy</option>
-          <option value="horse">Horse and Buggy</option>
-        </select>
+          <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
+          <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
+
+        </form>
       </div>
 
-      <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
-      <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
-
-    </form>
-
+    </div>
   </div>
 </body>
 </html>
