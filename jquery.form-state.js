@@ -1,9 +1,9 @@
 /*!
- * form state - save the state of a form using localstorage
+ * Form State 
+ * Saves the state of a form (or forms) in localStorage
+ * 
  * Copyright (c) 2013 Sean Gravener
  * https://github.com/seangravener
- *
- * Saves the state of a form (or forms) in localStorage
  * 
  * Requires totalStorage jQuery Plugin by Jared Novack & Upstatement
  * https://github.com/jarednova/jquery-total-storage
@@ -22,7 +22,8 @@
     var 
       
       // set defaults
-      settings = {
+      defaults = {
+        groupKey          : 'fs',           // future feature
         initComplete      : function() {},
         saveComplete      : function() {},
         skipComplete      : function() {},
@@ -38,8 +39,8 @@
         }
       },
       
-      // merge custom options/settings with defaults
-      settings = $.extend( settings, options );
+      // merge custom settings with defaults
+      settings = $.extend( defaults, options );
 
     var init = {
 
@@ -94,6 +95,48 @@
 
     };
 
+    var clearFields = function( $object ) {
+      // delete the stored data
+      var key     = settings.key_prefix + $object.attr( 'name' ),
+          success = $.totalStorage.deleteItem( key );
+
+      // clear the form fields
+      if ( success ) {
+        var fields      = $object[0].elements,
+            fieldType;
+
+        for ( i = 0; i < fields.length; i++ ) {
+          fieldType = fields[ i ].type.toLowerCase();
+
+          switch ( fieldType ) {
+            case "text":
+            case "password":
+            case "textarea":
+            case "hidden":
+              fields[ i ].value = ""; 
+              break;
+            
+            case "radio":
+            case "checkbox":
+              if ( fields[ i ].checked)
+                $object[0].elements[i].checked = false;
+              break;
+
+            case "select-one":
+            case "select-multi":
+              fields[ i ].selectedIndex = -1;
+              break;
+
+            default:
+              break;
+          }
+
+        }
+
+      }
+
+    }
+
     // functions that deal with attaching and hanlding click events
     // based on the defined triggers
     var triggers = {
@@ -141,6 +184,7 @@
 
       skip: function ( $object ) {
         
+        clearFields ( $object );
         callback ( 'skipComplete', $object, null );
         
       },
@@ -155,13 +199,7 @@
         
         if ( deleteData ) {
           
-          // delete the stored data
-          var key     = settings.key_prefix + $object.attr( 'name' ),
-              success = $.totalStorage.deleteItem( key );
-
-          // clear the form fields
-          $object[0].reset();
-
+          clearFields ( $object );
           callback ( 'clearComplete', $object, null );
 
         }
