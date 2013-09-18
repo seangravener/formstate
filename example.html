@@ -13,7 +13,11 @@
     $(document).ready(function() {
 
       var updateMessage = function ( html, $object, $data ) {
-        if ( $data.length ) $object.find('.messages').html(html).show();
+        if ( $data.length ) 
+          $object
+            .find( '.messages' )
+            .html( html )
+            .show();
       }
 
       // selects all the <form> tags on the page
@@ -144,7 +148,7 @@
 
     <div class="grid_1">  
       <div class="container--1bordered">
-        <form name="form__alpha" action="">
+        <form name="form__alpha" data-fs-group="formgroup" action="">
 
           <h2>About You (form 1)</h2>
 

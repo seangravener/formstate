@@ -23,7 +23,7 @@
       
       // set defaults
       defaults = {
-        groupKey          : 'fs',           // future feature
+        groupDataAttrib   : 'fs-group',     // future feature
         initComplete      : function() {},
         saveComplete      : function() {},
         skipComplete      : function() {},
@@ -43,6 +43,37 @@
       settings = $.extend( defaults, options );
 
     var init = {
+
+      getGroupKey: function ( $form ) {
+        
+        var group = $form.data( settings.groupDataAttrib );
+
+        if ( group )
+          return group;
+
+      },
+
+      saveData: function ( key, val, group ) {
+
+        if ( group )
+          storedDataKey = group;
+
+        var data = {},
+            storedData = $.totalStorage( storedDataKey );
+
+            console.log(storedData);
+
+            if ( group ) {
+              data[ key ] = val;
+            }
+
+            //data = JSON.stringify( data );
+
+            //var success = $.totalStorage( group, data );
+
+            console.log( data );
+
+      },
 
       // init function used to populate a form with stored data
       populateForm: function( $form, storedFields ) {
@@ -160,7 +191,7 @@
 
       attach: function ( selector, func, $object ) {
 
-        $object.find( selector ).on( 'click', function( e ) {
+        $object.find( selector ).on('click', function(e) {
           
           e.preventDefault();           
           return func( $object );
@@ -169,16 +200,18 @@
         
       },
 
-      save: function ( $object ) {
+      save: function ( $form ) {
 
         // @TODO - remove empty key/value pairs from stored JSON object
 
-        var key     = settings.key_prefix + $object.attr( 'name' ),
-            val     = JSON.stringify( $object.serializeArray() ),
-            success = $.totalStorage( key, val ),
+        var key     = settings.key_prefix + $form.attr( 'name' ),
+            val     = JSON.stringify( $form.serializeArray() ),
+            group   = init.getGroupKey( $form ),
+            success = init.saveData ( key, val, group ),
+            // success = $.totalStorage( key, val ),
             data    = JSON.parse( val );
 
-        callback ( 'saveComplete', $object, $(data) );
+        callback ( 'saveComplete', $form, $(data) );
 
       },
 
@@ -227,6 +260,7 @@
       if ( data ) {
 
         var data    = JSON.parse( data ),
+            group   = init.getGroupKey ( $this ),
             success = init.populateForm( $this, data );
 
       }
