@@ -23,7 +23,7 @@
       
       // set defaults
       defaults = {
-        groupDataAttrib   : 'fs-group',     // future feature
+        groupDataAttrib   : 'fs-group',
         initComplete      : function() {},
         saveComplete      : function() {},
         skipComplete      : function() {},
@@ -55,31 +55,80 @@
 
       saveData: function ( key, val, group ) {
 
-        if ( group )
-          storedDataKey = group;
+        var val        = $.parseJSON( val ),
+            success;
 
-        var data = {},
-            storedData = $.totalStorage( storedDataKey );
+        if ( group ) {
 
-            console.log(storedData);
+          var data       = {},
+              groupKey   = settings.key_prefix + group,
+              storedData = $.totalStorage( groupKey );
 
-            if ( group ) {
-              data[ key ] = val;
-            }
+          if ( storedData ) {
+            data = $.parseJSON( storedData );
+          }
 
-            //data = JSON.stringify( data );
+          data[ key ] = val;
+          key         = settings.key_prefix + group;
 
-            //var success = $.totalStorage( group, data );
+        }
+        
+        else {
+          data = val;
+        }
 
-            console.log( data );
+        data = JSON.stringify( data );
+
+        return success = $.totalStorage( key, data );
+
+      },
+
+      deleteData: function ( key, group ) {
+
+        if ( group ) {
+
+          var groupKey   = settings.key_prefix + group,
+              storedData = $.totalStorage( groupKey ),
+              storedData = $.parseJSON( storedData );
+
+          delete storedData[ key ];
+
+          keys = Object.keys( storedData );
+
+          if ( keys.length ) {
+
+            // re-save
+            var data = JSON.stringify( storedData );
+            $.totalStorage( groupKey, data );
+
+          }
+
+          else {
+            $.totalStorage.deleteItem( groupKey );
+          }
+
+        }
+
+        else {
+          $.totalStorage.deleteItem( key );
+        }
 
       },
 
       // init function used to populate a form with stored data
-      populateForm: function( $form, storedFields ) {
-      
+      populateForm: function( $form, storedFields, group ) {
+   
+        var key;
+
+        if ( group ) {
+          
+          key          = settings.key_prefix + $form.attr( 'name' );
+          storedFields = storedFields[ key ];
+
+        }
+
         // itirate over each stored value
-        for ( var i=0; i < storedFields.length; i++ ) {
+        for ( i in storedFields ) {
 
           var storedFieldName   = storedFields[i].name,
               storedFieldValue  = storedFields[i].value,
@@ -90,7 +139,7 @@
           // checkboxes and radios use the same name attr; handle that here
           if ( fieldType == 'checkbox' || fieldType == 'radio' ) {
             
-            // jQuery is smart enough to create an array of objects when a 
+            // jQuery creates an array of objects when a 
             // selector returns more than one element;
             // here, we loop through each radio or checkbox <input>
             $field.each( function() {
@@ -107,7 +156,7 @@
           }
           else {
 
-            // not a checkbox or radio; fill the field with the stored value
+            // not a checkbox or radio; fill with the stored value.
             $field.val( storedFieldValue );
 
           }
@@ -126,75 +175,67 @@
 
     };
 
-    var clearFields = function( $object ) {
-      // delete the stored data
-      var key     = settings.key_prefix + $object.attr( 'name' ),
-          success = $.totalStorage.deleteItem( key );
+    var clearFields = function( $form ) {
+      
+      var fields      = $form[ 0 ].elements,
+          fieldType;
 
-      // clear the form fields
-      if ( success ) {
-        var fields      = $object[0].elements,
-            fieldType;
+      for ( i = 0; i < fields.length; i++ ) {
+        fieldType = fields[ i ].type.toLowerCase();
 
-        for ( i = 0; i < fields.length; i++ ) {
-          fieldType = fields[ i ].type.toLowerCase();
+        switch ( fieldType ) {
+          case "text":
+          case "password":
+          case "textarea":
+          case "hidden":
+            fields[ i ].value = ""; 
+            break;
+          
+          case "radio":
+          case "checkbox":
+            if ( fields[i].checked )
+              $form[ 0 ].elements[ i ].checked = false;
+            break;
 
-          switch ( fieldType ) {
-            case "text":
-            case "password":
-            case "textarea":
-            case "hidden":
-              fields[ i ].value = ""; 
-              break;
-            
-            case "radio":
-            case "checkbox":
-              if ( fields[ i ].checked)
-                $object[0].elements[i].checked = false;
-              break;
+          case "select-one":
+          case "select-multi":
+            fields[ i ].selectedIndex = -1;
+            break;
 
-            case "select-one":
-            case "select-multi":
-              fields[ i ].selectedIndex = -1;
-              break;
-
-            default:
-              break;
-          }
-
+          default:
+            break;
         }
 
       }
 
-    }
+    };
 
     // functions that deal with attaching and hanlding click events
     // based on the defined triggers
     var triggers = {
       
-      init: function ( $object ) {
+      init: function ( $form ) {
 
-        var keys          = Object.keys( settings.triggers ),
-            numOfTriggers = Object.keys( settings.triggers ).length;
+        var keys = Object.keys( settings.triggers );
 
-        for ( var i=0; i < numOfTriggers; i++ ) {
+        for ( i in keys ) {
           
           // the current trigger
           key = keys[ i ];
 
           // attach the click handler to the DOM element
-          triggers.attach( settings.triggers[ key ], triggers[ key ], $object );
+          triggers.attach( settings.triggers[key], triggers[key], $form );
 
         }
 
       },
 
-      attach: function ( selector, func, $object ) {
+      attach: function ( selector, func, $scope ) {
 
-        $object.find( selector ).on('click', function(e) {
+        $scope.find( selector ).on('click', function(e) {
           
           e.preventDefault();           
-          return func( $object );
+          return func( $scope );
 
         });
         
@@ -208,21 +249,20 @@
             val     = JSON.stringify( $form.serializeArray() ),
             group   = init.getGroupKey( $form ),
             success = init.saveData ( key, val, group ),
-            // success = $.totalStorage( key, val ),
-            data    = JSON.parse( val );
+            data    = $.parseJSON( val );
 
         callback ( 'saveComplete', $form, $(data) );
 
       },
 
-      skip: function ( $object ) {
+      skip: function ( $form ) {
         
-        clearFields ( $object );
-        callback ( 'skipComplete', $object, null );
+        clearFields ( $form );
+        callback ( 'skipComplete', $form, null );
         
       },
 
-      clear: function ( $object ) {
+      clear: function ( $form ) {
 
         // delete stored data by default
         var deleteData = true;
@@ -232,8 +272,12 @@
         
         if ( deleteData ) {
           
-          clearFields ( $object );
-          callback ( 'clearComplete', $object, null );
+          var group   = init.getGroupKey( $form ),
+              key     = settings.key_prefix + $form.attr( 'name' ),
+              success = init.deleteData( key, group );
+
+          clearFields ( $form );
+          callback ( 'clearComplete', $form, null );
 
         }
 
@@ -249,7 +293,9 @@
       // cache the current object and attempt 
       // to retrieve any stored data
       var $this     = $(this),
-          key       = settings.key_prefix + $this.attr( 'name' ),
+          group     = init.getGroupKey( $this ),
+          key       = group || $this.attr( 'name' ),
+          key       = settings.key_prefix + key,
           data      = $.totalStorage( key ),
           $data;
 
@@ -259,9 +305,8 @@
 
       if ( data ) {
 
-        var data    = JSON.parse( data ),
-            group   = init.getGroupKey ( $this ),
-            success = init.populateForm( $this, data );
+        var data    = $.parseJSON( data ),
+            success = init.populateForm( $this, data, group );
 
       }
 

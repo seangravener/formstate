@@ -12,9 +12,14 @@
   <script type="text/javascript">
     $(document).ready(function() {
 
-      var updateMessage = function ( html, $object, $data ) {
-        if ( $data.length ) 
-          $object
+      var updateMessage = function ( html, $form, $data ) {
+        
+        var key = 'key_' + $form.attr('name');
+        
+        console.log( $data[0][ key ] );
+        
+        if ( $data[0][ key ] ) 
+          $form
             .find( '.messages' )
             .html( html )
             .show();
@@ -178,7 +183,7 @@
 
     <div class="grid_1">
       <div class="container--1bordered">
-        <form name="form__beta" action="">
+        <form name="form__beta" data-fs-group="formgroup" action="">
           
           <h2>Favorites (form 2)</h2>
 
@@ -216,6 +221,7 @@
       </div>
 
     </div>
+
   </div>
 </body>
 </html>
