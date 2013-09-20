@@ -17,8 +17,10 @@
         if ( $data ) 
           $form
             .find( '.messages' )
-            .html( html )
-            .show();
+            .show()
+            .find('div')
+              .html( html );
+            
       }
 
       $('form').formState({
@@ -26,17 +28,23 @@
         confirmDeleteText: 'Are you sure you want to permanently delete this form?',
         
         initComplete: function( $data ) {
-          updateMessage('There appears to be data stored for this form... it\'s been loaded.', this, $data );
+          updateMessage('<p>There appears to be data stored for this form... it\'s been loaded.</p>', this, $data );
         },
 
         saveComplete: function( $data ) {
-          updateMessage ('This form has been saved! You can navigate away from this page, close the browser, or come back in a year... the data will still be here.', this, $data )
+          updateMessage ('<p>This form has been saved! You can navigate away from this page, close the browser, or come back in a year... the data will still be here.</p>', this, $data );
+
         },
 
         clearComplete: function() {
-          updateMessage ('The saved data for this form has been deleted!', this, [0] )
+          updateMessage ('<p>The saved data for this form has been deleted!</p>', this, [0] )
         }
 
+      });
+
+      $('.messages button').on('click', function(e) {
+        e.preventDefault();
+        location.reload();
       });
 
     }); 
@@ -53,8 +61,10 @@
       line-height: 1.5em;
     }
 
-    h1, h2 {
+    h1, h2, h3 {
       line-height: 1.2em;
+      margin: 0 0 20px 0;
+      padding-bottom: 10px;
     }
 
     input {
@@ -75,9 +85,10 @@
       margin-right: auto;
       width: 960px;
     }
+      .bordered,
       .container--bordered {
         padding: 20px; margin: 20px auto;
-        border: 1px solid #ccc;
+        border: 1px solid #333;
       }
 
     .grid_1,
@@ -115,9 +126,12 @@
 
     .messages {
       padding: 20px;
-      margin: 20px 0;
-      border: 1px dotted #ccc;
-      background: #f5f5f5;
+      margin: -20px -20px 20px -20px;
+      /*border-top: 1px solid #FF3636;*/
+      border-bottom: 1px solid #333;
+      /*background: #FFB7B7;*/
+      background: #ccc;
+      
     }
 
     .clearfix:before,.clearfix:after{content:'\0020';display:block;overflow:hidden;visibility:hidden;width:0;height:0}.clearfix:after{clear:both}.clearfix{zoom:1}
@@ -130,28 +144,33 @@
   <div class="container  clearfix">
     
     <div class="grid_2">
-      <div class="container--bordered">
+      <div class="container /*--bordered*/">
         <h1>Form State</h1>
         <ul>
-          <li>The form data is saved using localStorage</li>
+          <li>The form data is saved as a json object in localStorage</li>
           <li>If stored data exists on pageload, the stored fields are populated</li>
           <li>Stored data does not expire. It is kept until it is deleted by the user, or by the app.</li>
-          <li>If localStorage isn't supported, cookies are used as a fallback</li>
           <li>Multiple &lt;form&gt; tags on the same page are supported</li>
+          <li>Multiple forms can be grouped into one json object using custom data-attrubites</li>
         </ul>
         <p>Fill out the fields below and click save. Then close the tab or reload this page to see the stored data.</p>
       </div>
     </div>
 
-    <div class="grid_1">  
-      <div class="container--1bordered">
-        <form name="form__alpha" data-fs-group="formgroup" action="">
+    <div class="grid_2">
+      <h1>Single Forms</h1>
+    </div>
 
-          <h2>About You (form 1)</h2>
+    <div class="grid_1">  
+      <div class="bordered">
+        <form name="form__user-meta" action="" method="">
 
           <div class="messages hide">
-            <!-- context messages inserted here -->
+            <div><!-- context messages inserted here --></div>
+            <button>reload this page</button>
           </div>
+
+          <h2>About You (form 1)</h2>
           
           <div class="row">
             <span class="label">First Name:</span>
@@ -166,6 +185,7 @@
             <input type="text" name="social[twitter]">
           </div>
 
+          <!-- triggers apply to the context of the form they're within -->
           <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
           <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
 
@@ -174,14 +194,15 @@
     </div>
 
     <div class="grid_1">
-      <div class="container--1bordered">
-        <form name="form__beta" data-fs-group="formgroup" action="">
+      <div class="bordered">
+        <form name="form__user-favs" action="" method="">
           
-          <h2>Favorites (form 2)</h2>
-
           <div class="messages hide">
-            <!-- context messages inserted here -->
+            <div><!-- context messages inserted here --></div>
+            <button>reload this page</button>
           </div>
+
+          <h2>Favorites (form 2)</h2>
 
           <div class="row">
             <span class="label">Favorite Color:</span>
@@ -206,6 +227,7 @@
             </select>
           </div>
 
+          <!-- triggers apply to the context of the form they're within -->
           <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
           <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
 
@@ -213,7 +235,91 @@
       </div>
 
     </div>
+  </div> 
+  
+  <div class="container">
+    
+    <div class="grid_2">
+      <h1>Grouped Forms</h1>
+      <p>Forms grouped together using <code>data-fs-group="my-group"</code> are stored using a single key.</p>
+    </div>
 
+    <div class="grid_1">  
+      <div class="bordered">
+        <form name="form__user-meta" data-fs-group="fs-group-example" action="" method="">
+
+          <div class="messages hide">
+            <div><!-- context messages inserted here --></div>
+            <button>reload this page</button>
+          </div>
+
+          <h2>About You (form 1)</h2>
+          
+          <div class="row">
+            <span class="label">First Name:</span>
+            <input type="text" name="name[first]">
+          </div>
+          <div class="row">
+            <span class="label">Last Name:</span>
+            <input type="text" name="name[last]">
+          </div>
+          <div class="row">
+            <span class="label">Twitter Handle:</span>
+            <input type="text" name="social[twitter]">
+          </div>
+
+          <!-- triggers apply to the context of the form they're within -->
+          <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
+          <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
+
+        </form>
+      </div>
+    </div>
+
+    <div class="grid_1">
+      <div class="bordered">
+        <form name="form__user-favs" data-fs-group="fs-group-example" action="" method="">
+          
+          <div class="messages hide">
+            <div><!-- context messages inserted here --></div>
+            <button>reload this page</button>
+          </div>
+
+          <h2>Favorites (form 2)</h2>
+
+          <div class="row">
+            <span class="label">Favorite Color:</span>
+            <label><input type="radio" name="favColor" value="red"> Red</label>
+            <label><input type="radio" name="favColor" value="green"> Green</label>
+            <label><input type="radio" name="favColor" value="blue"> Blue</label>
+          </div>
+
+          <div class="row">
+            <span class="label">Favorite Bears:</span>
+            <label><input type="checkbox" name="favAnimal[]" value="panda"> Panda</label>
+            <label><input type="checkbox" name="favAnimal[]" value="grizzly"> Grizzly</label>
+            <label><input type="checkbox" name="favAnimal[]" value="koala"> Koala</label>
+          </div>
+          
+          <div class="row">
+            <span class="label">Favorite Car:</span>
+            <select name="favCar">
+              <option value="ford">Ford</option>
+              <option value="chevy">Chevy</option>
+              <option value="horse">Horse and Buggy</option>
+            </select>
+          </div>
+
+          <!-- triggers apply to the context of the form they're within -->
+          <input type="submit" name="submit" value="Save Form Data" class="fs-trigger--save">
+          <input type="submit" name="submit" value="Delete Form Data" class="fs-trigger--clear">
+
+        </form>
+      </div>
+
+    </div>
+  
   </div>
+
 </body>
 </html>

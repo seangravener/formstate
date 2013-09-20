@@ -42,6 +42,24 @@ options = {
 $('form').formState( options );
 ```
 
+### Single Form Example
+**form name:** form__user-info
+```json
+[{name: 'firstName', value: 'Joe'}, {name: 'lastName', value: 'Smith'}]
+```
+### Grouped Form Example
+**form 1 name:** form__user-info
+**form 2 name:** form__user-favs
+**data-fs-group:** forms__user-data
+```json
+{ 
+  key_form__user-favs:
+    [{name:favColor,value:red},{name:favCar,value:ford}],
+  key_form__user-meta:
+    [{name:name[first],value:'Joe'},{name:name[last],value:'Smith'}]
+}
+```
+
 ### Callbacks
 Callbacks can be used to do something once a method is finished. 
 ```javascript
