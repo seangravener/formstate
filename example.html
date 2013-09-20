@@ -14,19 +14,13 @@
 
       var updateMessage = function ( html, $form, $data ) {
         
-        var key = 'key_' + $form.attr('name');
-        
-        console.log( $data[0][ key ] );
-        
-        if ( $data[0][ key ] ) 
+        if ( $data ) 
           $form
             .find( '.messages' )
             .html( html )
             .show();
       }
 
-      // selects all the <form> tags on the page
-      // and runs them through the plugin
       $('form').formState({
 
         confirmDeleteText: 'Are you sure you want to permanently delete this form?',
@@ -52,9 +46,7 @@
 
   <style type="text/css">
     
-    * {
-      box-sizing:border-box; font-family: "Helvetica Neue", Arial, sans-serif;
-    }
+    * { box-sizing:border-box; font-family: "Helvetica Neue", Arial, sans-serif; }
 
     html {
       font-size: 16px;

@@ -61,7 +61,7 @@
         if ( group ) {
 
           var data       = {},
-              groupKey   = settings.key_prefix + group,
+              groupKey   = prefix( group ),
               storedData = $.totalStorage( groupKey );
 
           if ( storedData ) {
@@ -69,7 +69,7 @@
           }
 
           data[ key ] = val;
-          key         = settings.key_prefix + group;
+          key         = prefix( group );
 
         }
         
@@ -87,7 +87,7 @@
 
         if ( group ) {
 
-          var groupKey   = settings.key_prefix + group,
+          var groupKey   = prefix( group ),
               storedData = $.totalStorage( groupKey ),
               storedData = $.parseJSON( storedData );
 
@@ -122,7 +122,7 @@
 
         if ( group ) {
           
-          key          = settings.key_prefix + $form.attr( 'name' );
+          key          = prefix( $form.attr('name') );
           storedFields = storedFields[ key ];
 
         }
@@ -245,7 +245,7 @@
 
         // @TODO - remove empty key/value pairs from stored JSON object
 
-        var key     = settings.key_prefix + $form.attr( 'name' ),
+        var key     = prefix( $form.attr('name') ),
             val     = JSON.stringify( $form.serializeArray() ),
             group   = init.getGroupKey( $form ),
             success = init.saveData ( key, val, group ),
@@ -273,7 +273,7 @@
         if ( deleteData ) {
           
           var group   = init.getGroupKey( $form ),
-              key     = settings.key_prefix + $form.attr( 'name' ),
+              key     = prefix ( $form.attr('name') ),
               success = init.deleteData( key, group );
 
           clearFields ( $form );
@@ -285,19 +285,25 @@
 
     };
 
+    var prefix = function ( string ) {
+      return settings.key_prefix + string;
+    };
+
     // 'this' is the jQuery object(s) returned to the plugin;
-    // we use .each() in case multiple objects are returned;
-    // we 'return' so the method is chainable
+    // .each() is used in case multiple objects are returned;
+    // returned so the method is chainable.
     return this.each ( function () {
       
       // cache the current object and attempt 
       // to retrieve any stored data
       var $this     = $(this),
           group     = init.getGroupKey( $this ),
-          key       = group || $this.attr( 'name' ),
-          key       = settings.key_prefix + key,
-          data      = $.totalStorage( key ),
-          $data;
+          groupKey  = prefix( group ),
+          formKey   = prefix( $this.attr('name') ),
+          key       = ( group ) ? groupKey : formKey;
+
+      var data      = $.totalStorage( key ),
+          $data     = null;
 
       // attach click handlers within '$this' context 
       // using the triggers in the settings
@@ -308,9 +314,15 @@
         var data    = $.parseJSON( data ),
             success = init.populateForm( $this, data, group );
 
+        if ( group ) 
+          data = data[ formKey ];
+        
+        if ( data )
+          $data = $(data);
+
       }
 
-      callback ( 'initComplete', $this, $(data) );
+      callback ( 'initComplete', $this, $data );
 
     });
 
