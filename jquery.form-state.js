@@ -31,7 +31,7 @@
         hasFormData       : function() {},  // future feature
         clearOnExit       : false,          // future feature
         confirmDeleteText : '',
-        key_prefix        : 'key_',
+        key_prefix        : '',
         triggers: {
           save            : '.fs-trigger--save',
           skip            : '.fs-trigger--skip',
