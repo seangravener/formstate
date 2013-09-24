@@ -1,15 +1,15 @@
 # Form State
 
-**Form State** is a jQuery plugin that saves the state of a form using localStorage
+**Form State** is a jQuery plugin that saves the state of a form in localStorage
 
 # Features
-* create, retrieve, save, update and delete
-* if a form with saved data is loaded, Form State will attempt to populate the form.
-* save multiple forms to one localStorage json object using data-attribute
-
-Form State uses the name of the form as the key.
+* save, update and delete form data
+* if a form contains saved data, Form State will populate the form.
+* group multiple forms in one JSON object using a custom ```data-attribute```
 
 # Basic Usage
+Form State uses the ```name=""``` attribute of the form as the storage key (with an optional prefix).
+
 Save all ```<form>``` tags
 ```javascript
 $('form').formState( options );
@@ -44,14 +44,14 @@ $('form').formState( options );
 
 ### Single Form Example
 **form name:** form__user-info
-```json
+```javascript
 [{name: 'firstName', value: 'Joe'}, {name: 'lastName', value: 'Smith'}]
 ```
 ### Grouped Form Example
 **form 1 name:** form__user-info
 **form 2 name:** form__user-favs
 **data-fs-group:** forms__user-data
-```json
+```javascript
 { 
   key_form__user-favs:
     [{name:favColor,value:red},{name:favCar,value:ford}],

@@ -44,7 +44,7 @@
 
     var init = {
 
-      getGroupKey: function ( $form ) {
+      getGroupKey: function( $form ) {
         
         var group = $form.data( settings.groupDataAttrib );
 
@@ -53,7 +53,7 @@
 
       },
 
-      saveData: function ( key, val, group ) {
+      saveData: function( key, val, group ) {
 
         var val        = $.parseJSON( val ),
             success;
@@ -61,7 +61,7 @@
         if ( group ) {
 
           var data       = {},
-              groupKey   = prefix( group ),
+              groupKey   = _prefix( group ),
               storedData = $.totalStorage( groupKey );
 
           if ( storedData ) {
@@ -69,7 +69,7 @@
           }
 
           data[ key ] = val;
-          key         = prefix( group );
+          key         = _prefix( group );
 
         }
         
@@ -83,11 +83,11 @@
 
       },
 
-      deleteData: function ( key, group ) {
+      deleteData: function( key, group ) {
 
         if ( group ) {
 
-          var groupKey   = prefix( group ),
+          var groupKey   = _prefix( group ),
               storedData = $.totalStorage( groupKey ),
               storedData = $.parseJSON( storedData );
 
@@ -115,14 +115,14 @@
 
       },
 
-      // init function used to populate a form with stored data
+      // populate a form with stored data
       populateForm: function( $form, storedFields, group ) {
    
         var key;
 
         if ( group ) {
           
-          key          = prefix( $form.attr('name') );
+          key          = _prefix( $form.attr('name') );
           storedFields = storedFields[ key ];
 
         }
@@ -167,14 +167,6 @@
       }
     };
 
-    // helper function for callbacks
-    var callback = function ( func, $object, $data ) {
-        
-      // make the callback, pass the object and data
-      settings[ func ].call( $object, $data );
-
-    };
-
     var clearFields = function( $form ) {
       
       var fields      = $form[ 0 ].elements,
@@ -214,7 +206,7 @@
     // based on the defined triggers
     var triggers = {
       
-      init: function ( $form ) {
+      init: function( $form ) {
 
         var keys = Object.keys( settings.triggers );
 
@@ -230,7 +222,7 @@
 
       },
 
-      attach: function ( selector, func, $scope ) {
+      attach: function( selector, func, $scope ) {
 
         $scope.find( selector ).on('click', function(e) {
           
@@ -241,28 +233,28 @@
         
       },
 
-      save: function ( $form ) {
+      save: function( $form ) {
 
         // @TODO - remove empty key/value pairs from stored JSON object
 
-        var key     = prefix( $form.attr('name') ),
+        var key     = _prefix( $form.attr('name') ),
             val     = JSON.stringify( $form.serializeArray() ),
             group   = init.getGroupKey( $form ),
             success = init.saveData ( key, val, group ),
             data    = $.parseJSON( val );
 
-        callback ( 'saveComplete', $form, $(data) );
+        _callback( 'saveComplete', $form, $(data) );
 
       },
 
-      skip: function ( $form ) {
+      skip: function( $form ) {
         
-        clearFields ( $form );
-        callback ( 'skipComplete', $form, null );
+        clearFields( $form );
+        _callback( 'skipComplete', $form, null );
         
       },
 
-      clear: function ( $form ) {
+      clear: function( $form ) {
 
         // delete stored data by default
         var deleteData = true;
@@ -273,11 +265,11 @@
         if ( deleteData ) {
           
           var group   = init.getGroupKey( $form ),
-              key     = prefix ( $form.attr('name') ),
+              key     = _prefix( $form.attr('name') ),
               success = init.deleteData( key, group );
 
-          clearFields ( $form );
-          callback ( 'clearComplete', $form, null );
+          clearFields( $form );
+          _callback( 'clearComplete', $form, null );
 
         }
 
@@ -285,21 +277,26 @@
 
     };
 
-    var prefix = function ( string ) {
+    function _prefix( string ) {
       return settings.key_prefix + string;
+    };
+      
+    function _callback( func, $object, $data ) {
+      // make the callback, pass the object and data
+      settings[ func ].call( $object, $data );
     };
 
     // 'this' is the jQuery object(s) returned to the plugin;
     // .each() is used in case multiple objects are returned;
     // returned so the method is chainable.
-    return this.each ( function () {
+    return this.each (function() {
       
       // cache the current object and attempt 
       // to retrieve any stored data
       var $this     = $(this),
           group     = init.getGroupKey( $this ),
-          groupKey  = prefix( group ),
-          formKey   = prefix( $this.attr('name') ),
+          groupKey  = _prefix( group ),
+          formKey   = _prefix( $this.attr('name') ),
           key       = ( group ) ? groupKey : formKey;
 
       var data      = $.totalStorage( key ),
@@ -322,7 +319,7 @@
 
       }
 
-      callback ( 'initComplete', $this, $data );
+      _callback( 'initComplete', $this, $data );
 
     });
 
